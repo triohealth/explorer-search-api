@@ -2,6 +2,8 @@
 
 A powerful hybrid search API for clinical notes, combining semantic vector search with BM25 keyword matching for comprehensive and accurate results.
 
+> **Note:** To get an API key, contact sales@trioehealth.com
+
 ## Overview
 
 Notesearch API enables searching across indexed patient notes using three search modes:
@@ -12,36 +14,68 @@ Notesearch API enables searching across indexed patient notes using three search
 | `semantic` | Vector similarity search | Conceptual queries (e.g., "patient struggling with blood sugar") |
 | `hybrid` | Combines both with intelligent fusion | General-purpose queries (default) |
 
-## Quick Start
+## Example searches
 
-### 1. Get Your API Key
-
-Contact your administrator to obtain an API key with appropriate entitlements:
-- `read:global` - Search all indexed data
-- `read:<cohort-id>` - Search specific cohort(s)
-
-### 2. Test Connectivity
-
+Set up your environment variables:
 ```bash
-curl -X GET "https://api.notesearch.example.com/health"
+export TRIO_API_URL="http://k8s-notesear-notesear-20ee5f12c9-4c4972a75575c8a7.elb.us-east-1.amazonaws.com:8001"
+export TRIO_API_KEY="YOUR_API_KEY"
 ```
 
-### 3. Discover Available Cohorts
+### 1. Global search
+
+Search across all cohorts accessible to your API key.
 
 ```bash
-curl -X GET "https://api.notesearch.example.com/cohorts/indexed" \
-  -H "X-API-Key: YOUR_API_KEY"
-```
-
-### 4. Run Your First Search
-
-```bash
-curl -X GET "https://api.notesearch.example.com/search" \
-  -H "X-API-Key: YOUR_API_KEY" \
+curl -X GET "$TRIO_API_URL/search" \
+  -H "X-API-Key: $TRIO_API_KEY" \
   -G \
   --data-urlencode "query=diabetes management" \
-  --data-urlencode "k=10" \
-  --data-urlencode "search-type=hybrid"
+  --data-urlencode "k=10"
+```
+
+### 2. Cohort search (discover available cohorts)
+
+First, list available cohorts:
+
+```bash
+curl -X GET "$TRIO_API_URL/cohorts/indexed" \
+  -H "X-API-Key: $TRIO_API_KEY"
+```
+
+Then, search within specific cohorts using `cohort-ids`:
+
+```bash
+curl -X GET "$TRIO_API_URL/search" \
+  -H "X-API-Key: $TRIO_API_KEY" \
+  -G \
+  --data-urlencode "query=diabetes management" \
+  --data-urlencode "cohort-ids=123,456"
+```
+
+### 3. Patient search
+
+Filter results to a specific patient using `patient-id`.
+
+```bash
+curl -X GET "$TRIO_API_URL/search" \
+  -H "X-API-Key: $TRIO_API_KEY" \
+  -G \
+  --data-urlencode "query=hypertension" \
+  --data-urlencode "patient-id=3638E059-DFF3-4F24-9A7F-16F9EC2AD120"
+```
+
+### 4. Date range search
+
+Restrict search to clinical notes within a date range.
+
+```bash
+curl -X GET "$TRIO_API_URL/search" \
+  -H "X-API-Key: $TRIO_API_KEY" \
+  -G \
+  --data-urlencode "query=post-op complications" \
+  --data-urlencode "date-from=2024-01-01" \
+  --data-urlencode "date-to=2024-12-31"
 ```
 
 ### Interactive Quickstart
@@ -60,18 +94,6 @@ All API requests require an `X-API-Key` header:
 X-API-Key: ts_your_api_key_here
 ```
 
-### Entitlements
-
-Your API key determines what data you can access:
-
-| Entitlement | Access Level |
-|-------------|-------------|
-| `read:global` | Search all indexed cohorts |
-| `read:<cohort-id>` | Search specific cohort only |
-
-Requests for data outside your entitlements return `403 Forbidden`.
-
----
 
 ## API Reference
 
