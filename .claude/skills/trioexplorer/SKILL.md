@@ -45,6 +45,33 @@ trioexplorer stats history [--date-from DATE] [--date-to DATE]
 - `--debug` — Enable request/response logging
 - `--help` — Show help for any command
 
+## Deduplication Modes
+
+Use `-d` / `--distinct` to control how results are deduplicated. Each mode returns the highest-scoring result per entity.
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `patient` | One result per patient | Find unique patients matching criteria |
+| `encounter` | One result per encounter (default) | See different visits for same condition |
+| `note` | One result per note | Multiple chunks from same note consolidated |
+| `none` | No deduplication | See all matching chunks |
+
+### Examples
+
+```bash
+# Find unique patients with Dupixent side effects
+trioexplorer search "Dupixent side effects" -d patient -k 20
+
+# See all encounters mentioning chest pain (default behavior)
+trioexplorer search "chest pain" -d encounter -k 15
+
+# Get all matching chunks without deduplication
+trioexplorer search "metformin dosing" -d none -k 50
+
+# Dedupe by note (useful when searching for specific documentation)
+trioexplorer search "discharge instructions" -d note -k 10
+```
+
 ## Basic Examples
 
 Search for diabetes-related notes:
