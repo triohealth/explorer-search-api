@@ -1,11 +1,19 @@
 """Configuration management for the Trioexplorer CLI."""
 
 import os
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv, find_dotenv
 
-# Load environment from nearest .env (repo root or cwd)
+# System-wide config directory
+SYSTEM_CONFIG_DIR = Path.home() / ".trioexplorer"
+SYSTEM_ENV_FILE = SYSTEM_CONFIG_DIR / ".env"
+
+# Load environment files in order (later loads don't override existing values):
+# 1. System-wide config (~/.trioexplorer/.env) - loaded first, takes priority
+# 2. Local .env (repo root or cwd) - fallback for project-specific overrides
+load_dotenv(SYSTEM_ENV_FILE)
 load_dotenv(find_dotenv(usecwd=True))
 
 # Environment variable names
@@ -52,7 +60,10 @@ def validate_api_key() -> str:
     if not api_key:
         raise SystemExit(
             f"Error: No API key configured.\n"
-            f"Set {API_KEY_ENV} in your environment or .env file.\n"
+            f"Set {API_KEY_ENV} in one of:\n"
+            f"  1. {SYSTEM_ENV_FILE} (recommended for personal use)\n"
+            f"  2. .env file in your project directory\n"
+            f"  3. Environment variable\n"
             f"To get an API key, contact sales@trioehealth.com"
         )
     return api_key
