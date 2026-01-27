@@ -4,10 +4,16 @@ This repo is commonly used with Claude Code to search clinical notes. Here are q
 
 ## Setup
 
-1. **API Key**: Check for your API key in the `.env` file at the repo root:
+1. **API Key**: Set up your API key in the system-wide config (recommended):
+   ```bash
+   mkdir -p ~/.trioexplorer
+   echo "TRIOEXPLORER_API_KEY=ts_your_api_key_here" > ~/.trioexplorer/.env
    ```
-   TRIOEXPLORER_API_KEY=ts_your_api_key_here
-   ```
+
+   The CLI checks for the API key in this order:
+   1. `~/.trioexplorer/.env` (system-wide, recommended)
+   2. `.env` in the current directory or repo root
+   3. `TRIOEXPLORER_API_KEY` environment variable
 
 2. **Install the CLI** (for quick testing):
    ```bash
@@ -19,10 +25,7 @@ This repo is commonly used with Claude Code to search clinical notes. Here are q
 The `trioexplorer` CLI is the fastest way to test searches:
 
 ```bash
-# Load your API key
-export $(cat .env | xargs)
-
-# Basic search
+# Basic search (API key auto-loaded from ~/.trioexplorer/.env)
 trioexplorer search "diabetes management"
 
 # Limit results
